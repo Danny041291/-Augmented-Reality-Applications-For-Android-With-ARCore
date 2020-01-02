@@ -16,19 +16,13 @@ import java.io.InputStream;
 
 public class MainARFragment extends ArFragment {
 
-    private static final String AR_IMAGE = "default.jpg";
     private static final String SAMPLE_IMAGE_DATABASE = "sample_database.imgdb";
-    private int arImageIndex;
-
-    public int getARImageIndex() {
-        return this.arImageIndex;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+        /* Use the code below if you need to use just the ArImages feature
         // Turn off the plane discovery since we're only looking for images
-        /*
         getPlaneDiscoveryController().hide();
         getPlaneDiscoveryController().setInstructionView(null);
         getArSceneView().getPlaneRenderer().setEnabled(false);
@@ -39,12 +33,12 @@ public class MainARFragment extends ArFragment {
     @Override
     protected Config getSessionConfiguration(Session session) {
         Config config = super.getSessionConfiguration(session);
-        this.arImageIndex = setupAugmentedImageDatabase(config, session);
+        // Load the stored AR images
+        setupAugmentedImageDatabase(config, session);
         return config;
     }
 
-    private int setupAugmentedImageDatabase(Config config, Session session) {
-        int index = -1;
+    private void setupAugmentedImageDatabase(Config config, Session session) {
         AugmentedImageDatabase augmentedImageDatabase = new AugmentedImageDatabase(session);
         try (InputStream is = getContext().getAssets().open(SAMPLE_IMAGE_DATABASE)) {
             augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, is);
@@ -52,7 +46,6 @@ public class MainARFragment extends ArFragment {
             System.out.println(e);
         }
         config.setAugmentedImageDatabase(augmentedImageDatabase);
-        return index;
     }
 
 }

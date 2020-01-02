@@ -39,7 +39,9 @@ public class MainActivity extends AppCompatActivity {
         // Load the animated model
         this.loadModel(R.raw.andy_dance,
                 modelRenderable -> {
+                    // Add a listener to the OnFrame loop
                     Scene scene = arFragment.getArSceneView().getScene();
+                    // The '0' index is associated with the first loaded AR image
                     scene.addOnUpdateListener(frameTime -> this.onUpdateFrame(arFragment, 0, modelRenderable));
                 },
                 throwable -> {
@@ -49,10 +51,10 @@ public class MainActivity extends AppCompatActivity {
                     return null;
                 });
 
-        // Load the model
+        // Load the transformable model
         this.loadModel(R.raw.andy,
                 modelRenderable -> {
-                    // Define a model behavior for the AR plane tap event
+                    // Define a behaviour associated with the model for the AR plane tap event
                     this.setOnTapArPlaneModelListener(arFragment, modelRenderable);
                 },
                 throwable -> {
@@ -75,11 +77,11 @@ public class MainActivity extends AppCompatActivity {
     private void setOnTapArPlaneModelListener(ArFragment arFragment, ModelRenderable modelRenderable) {
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
-                    // Create the anchor.
+                    // Create the anchor
                     Anchor anchor = hitResult.createAnchor();
                     AnchorNode anchorNode = new AnchorNode(anchor);
                     anchorNode.setParent(arFragment.getArSceneView().getScene());
-                    // Create the transformable node and add it to the anchor.
+                    // Create the transformable node and add it to the anchor
                     TransformableNode transformableNode = new TransformableNode(arFragment.getTransformationSystem());
                     transformableNode.setParent(anchorNode);
                     transformableNode.setRenderable(modelRenderable);
@@ -92,31 +94,37 @@ public class MainActivity extends AppCompatActivity {
         Frame frame = arFragment.getArSceneView().getArFrame();
         if (frame == null) return;
         Collection<AugmentedImage> updatedAugmentedImages = frame.getUpdatedTrackables(AugmentedImage.class);
+        // Check the tracker status for each detected image
         for (AugmentedImage augmentedImage : updatedAugmentedImages) {
+            // Get the detected AR image index to compare with the target one
             int augmentedImageIndex = augmentedImage.getIndex();
             switch (augmentedImage.getTrackingState()) {
                 case PAUSED:
                     break;
                 case TRACKING:
+                    // Put the model inside the scene if it's not present
                     if (augmentedImageIndex == index && !activeARNodes.containsKey(index)) {
-                        // Create the anchor.
+                        // Create the anchor
                         Anchor anchor = augmentedImage.createAnchor(augmentedImage.getCenterPose());
                         AnchorNode anchorNode = new AnchorNode(anchor);
                         anchorNode.setParent(scene);
-                        // Create the node and add it to the anchor.
+                        // Create the node and add it to the anchor
                         Node node = new Node();
                         node.setParent(anchorNode);
                         node.setRenderable(modelRenderable);
                         node.setLocalScale(node.getLocalScale().scaled(0.1f));
                         node.setOnTouchListener((hitTestResult, motionEvent) -> {
+                            // Restart the animation on touch
                             this.startModelAnimation(modelRenderable, 0);
                             return true;
                         });
+                        // Start the animation
                         this.startModelAnimation(modelRenderable, 0);
                         activeARNodes.put(index, node);
                     }
                     break;
                 case STOPPED:
+                    // Remove the model from the scene when the tracking ends
                     if (augmentedImageIndex == index && activeARNodes.containsKey(index)) {
                         Node node = activeARNodes.get(index);
                         scene.removeChild(node);
