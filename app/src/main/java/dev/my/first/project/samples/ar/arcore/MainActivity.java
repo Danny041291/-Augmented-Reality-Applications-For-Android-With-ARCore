@@ -114,11 +114,11 @@ public class MainActivity extends AppCompatActivity {
                         node.setRenderable(modelRenderable);
                         node.setLocalScale(node.getLocalScale().scaled(0.1f));
                         node.setOnTouchListener((hitTestResult, motionEvent) -> {
-                            // Restart the animation on touch
+                            // Restart the '0' (first) animation on touch
                             this.startModelAnimation(modelRenderable, 0);
                             return true;
                         });
-                        // Start the animation
+                        // Start the '0' (first) animation
                         this.startModelAnimation(modelRenderable, 0);
                         activeARNodes.put(index, node);
                     }
